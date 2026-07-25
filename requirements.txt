@@ -1,0 +1,16 @@
+pymongo
+PyYAML
+fastapi
+uvicorn
+python-multipart
+pandas
+numpy
+xgboost
+lightgbm
+catboost
+scikit-learn
+matplotlib
+seaborn
+plotly
+scipy
+-e .
