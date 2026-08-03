@@ -4,12 +4,14 @@ fastapi
 uvicorn
 python-multipart
 pandas
-numpy
+numpy<2.0
+
 xgboost
 lightgbm
 dill
 catboost
 scikit-learn
+evidently
 matplotlib
 seaborn
 plotly
