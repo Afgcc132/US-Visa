@@ -11,8 +11,8 @@ ARTIFACT_DIR = 'artifact'
 FILE_NAME = 'usvisa.csv'
 MODEL_FILE_NAME = 'model.pkl'
 DATA_FILE_NAME = 'usvisa.csv'
-TRAIN_FILE_NAME = 'train.cvs'
-TEST_FILE_NAME = 'test.cvs'
+TRAIN_FILE_NAME = 'train.csv'
+TEST_FILE_NAME = 'test.csv'
 PREPROCESSING_OBJECT_FILE_NAME = 'preprocessing.pkl'
 ##DATA INGESTION CONSTANTS
 
@@ -33,4 +33,13 @@ DATA_VALIDATION_BASE_SCHEMA_FILE_PATH = "config/schema.yaml"
 SCHEMA_FILE_PATH = os.path.join("config", "schema.yaml")
 DATA_VALIDATION_DRIFT_REPORT_FILE_NAME = "drift_report.yaml"
 DATA_VALIDATION_DRIFT_REPORT_PAGE_FILE_NAME = "drift_report.html"
+
+##DATA TRANSFORMATION CONSTANTS
+
+DATA_TRANSFORMATION_DIR_NAME = 'data_transformation'
+DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR = 'transformed'
+DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR = 'transformed_object'
+
+TARGET_COLUMN = 'case_status'
+CURRENT_YEAR = date.today().year
 

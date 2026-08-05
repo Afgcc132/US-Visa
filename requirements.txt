@@ -11,6 +11,7 @@ lightgbm
 dill
 catboost
 scikit-learn
+imbalanced-learn
 evidently
 matplotlib
 seaborn
