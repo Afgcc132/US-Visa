@@ -4,16 +4,19 @@ from usvisa.exception import USVisaException
 from usvisa.entity.artifact_entity import (
     DataIngestionArtifact,
     DataValidationArtifact,
-    DataTransformationArtifact
+    DataTransformationArtifact,
+    ModelTrainerArtifact
 )
 from usvisa.entity.config_entity import (
     DataIngestionConfig,
     DataValidationConfig,
-    DataTransformationConfig
+    DataTransformationConfig,
+    ModelTrainerConfig
 )
 from usvisa.components.data_ingestion import DataIngestion
 from usvisa.components.data_validation import DataValidation
 from usvisa.components.data_transformation import DataTransformation
+from usvisa.components.model_training import ModelTrainer
 
 
 class TrainingPipeline:
@@ -22,6 +25,7 @@ class TrainingPipeline:
             self.data_ingestion_config = DataIngestionConfig()
             self.data_validation_config = DataValidationConfig()
             self.data_transformation_config = DataTransformationConfig()
+            self.model_trainer_config = ModelTrainerConfig()
         except Exception as e:
             raise USVisaException(e, sys) from e
 
@@ -75,6 +79,22 @@ class TrainingPipeline:
         except Exception as e:
             raise USVisaException(e, sys) from e
 
+    def start_model_trainer(self, data_transformation_artifact: DataTransformationArtifact) -> ModelTrainerArtifact:
+        """
+        Inicia el componente de entrenamiento de modelo.
+        """
+        try:
+            logging.info("Iniciando componente: Model Trainer")
+            model_trainer = ModelTrainer(
+                data_transformation_artifact=data_transformation_artifact,
+                model_trainer_config=self.model_trainer_config
+            )
+            model_trainer_artifact = model_trainer.initiate_model_trainer()
+            logging.info(f"Componente Model Trainer completado. Artefacto: {model_trainer_artifact}")
+            return model_trainer_artifact
+        except Exception as e:
+            raise USVisaException(e, sys) from e
+
     def run_pipeline(self) -> None:
         """
         Ejecuta los componentes del pipeline en secuencia.
@@ -87,6 +107,11 @@ class TrainingPipeline:
                 data_ingestion_artifact=data_ingestion_artifact,
                 data_validation_artifact=data_validation_artifact
             )
+            model_trainer_artifact = self.start_model_trainer(
+                data_transformation_artifact=data_transformation_artifact
+            )
+            logging.info(f"Pipeline completado con éxito. Resultado del entrenamiento: {model_trainer_artifact}")
             logging.info("========== Fin del Training Pipeline ==========")
         except Exception as e:
             raise USVisaException(e, sys) from e
+

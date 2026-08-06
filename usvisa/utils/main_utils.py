@@ -61,6 +61,16 @@ def save_numpy_array(file_path: str, array: np.ndarray) -> None:
         raise USVisaException(e, sys) from e
 
 
+def load_numpy_array_data(file_path: str) -> np.ndarray:
+    """Carga un array de NumPy (.npy) desde una ruta dada"""
+    try:
+        with open(file_path, "rb") as file_obj:
+            return np.load(file_obj)
+    except Exception as e:
+        raise USVisaException(e, sys) from e
+
+
+
 def save_data_frame(file_path: str, df: pd.DataFrame) -> None:
     """Guarda un DataFrame de Pandas (.csv)"""
     try:
