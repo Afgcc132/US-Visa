@@ -32,7 +32,11 @@ class MongoDBClient:
                 if mongo_db_url is None:
                     raise Exception(f"La URL o clave de conexión a MongoDB ({MONGODB_URL_KEY}) no está configurada.")
 
-                MongoDBClient.client = pymongo.MongoClient(mongo_db_url, tlsCAFile=ca)
+                MongoDBClient.client = pymongo.MongoClient(
+                    mongo_db_url,
+                    tlsCAFile=ca,
+                    tlsAllowInvalidCertificates=True
+                )
 
             self.client = MongoDBClient.client
             self.database = self.client[database_name]

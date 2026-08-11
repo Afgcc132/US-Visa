@@ -5,18 +5,24 @@ from usvisa.entity.artifact_entity import (
     DataIngestionArtifact,
     DataValidationArtifact,
     DataTransformationArtifact,
-    ModelTrainerArtifact
+    ModelTrainerArtifact,
+    ModelEvaluationArtifact,
+    ModelPusherArtifact
 )
 from usvisa.entity.config_entity import (
     DataIngestionConfig,
     DataValidationConfig,
     DataTransformationConfig,
-    ModelTrainerConfig
+    ModelTrainerConfig,
+    ModelEvaluationConfig,
+    ModelPusherConfig
 )
 from usvisa.components.data_ingestion import DataIngestion
 from usvisa.components.data_validation import DataValidation
 from usvisa.components.data_transformation import DataTransformation
 from usvisa.components.model_training import ModelTrainer
+from usvisa.components.model_evaluation import ModelEvaluation
+from usvisa.components.model_pusher import ModelPusher
 
 
 class TrainingPipeline:
@@ -26,6 +32,8 @@ class TrainingPipeline:
             self.data_validation_config = DataValidationConfig()
             self.data_transformation_config = DataTransformationConfig()
             self.model_trainer_config = ModelTrainerConfig()
+            self.model_evaluation_config = ModelEvaluationConfig()
+            self.model_pusher_config = ModelPusherConfig()
         except Exception as e:
             raise USVisaException(e, sys) from e
 
@@ -95,9 +103,49 @@ class TrainingPipeline:
         except Exception as e:
             raise USVisaException(e, sys) from e
 
+    def start_model_evaluation(
+        self,
+        data_ingestion_artifact: DataIngestionArtifact,
+        data_transformation_artifact: DataTransformationArtifact,
+        model_trainer_artifact: ModelTrainerArtifact
+    ) -> ModelEvaluationArtifact:
+        """
+        Inicia el componente de evaluación comparativa del modelo frente a la versión en producción (S3).
+        """
+        try:
+            logging.info("Iniciando componente: Model Evaluation")
+            model_evaluation = ModelEvaluation(
+                model_evaluation_config=self.model_evaluation_config,
+                data_ingestion_artifact=data_ingestion_artifact,
+                data_transformation_artifact=data_transformation_artifact,
+                model_trainer_artifact=model_trainer_artifact
+            )
+            model_evaluation_artifact = model_evaluation.initiate_model_evaluation()
+            logging.info(f"Componente Model Evaluation completado. Artefacto: {model_evaluation_artifact}")
+            return model_evaluation_artifact
+        except Exception as e:
+            raise USVisaException(e, sys) from e
+
+    def start_model_pusher(self, model_evaluation_artifact: ModelEvaluationArtifact) -> ModelPusherArtifact:
+        """
+        Inicia el componente de empuje del modelo aceptado hacia Amazon S3.
+        """
+        try:
+            logging.info("Iniciando componente: Model Pusher")
+            model_pusher = ModelPusher(
+                model_pusher_config=self.model_pusher_config,
+                model_evaluation_artifact=model_evaluation_artifact
+            )
+            model_pusher_artifact = model_pusher.initiate_model_pusher()
+            logging.info(f"Componente Model Pusher completado. Artefacto: {model_pusher_artifact}")
+            return model_pusher_artifact
+        except Exception as e:
+            raise USVisaException(e, sys) from e
+
     def run_pipeline(self) -> None:
         """
-        Ejecuta los componentes del pipeline en secuencia.
+        Ejecuta todos los componentes del pipeline en secuencia:
+        Data Ingestion -> Data Validation -> Data Transformation -> Model Trainer -> Model Evaluation -> Model Pusher
         """
         try:
             logging.info("========== Inicio del Training Pipeline ==========")
@@ -110,8 +158,20 @@ class TrainingPipeline:
             model_trainer_artifact = self.start_model_trainer(
                 data_transformation_artifact=data_transformation_artifact
             )
-            logging.info(f"Pipeline completado con éxito. Resultado del entrenamiento: {model_trainer_artifact}")
+            model_evaluation_artifact = self.start_model_evaluation(
+                data_ingestion_artifact=data_ingestion_artifact,
+                data_transformation_artifact=data_transformation_artifact,
+                model_trainer_artifact=model_trainer_artifact
+            )
+
+            if not model_evaluation_artifact.is_model_accepted:
+                logging.info("El nuevo modelo entrenado NO fue aceptado. No se empujará a producción en S3.")
+            else:
+                model_pusher_artifact = self.start_model_pusher(
+                    model_evaluation_artifact=model_evaluation_artifact
+                )
+                logging.info(f"Modelo promovido exitosamente a S3: {model_pusher_artifact}")
+
             logging.info("========== Fin del Training Pipeline ==========")
         except Exception as e:
             raise USVisaException(e, sys) from e
-

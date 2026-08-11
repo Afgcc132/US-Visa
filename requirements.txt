@@ -17,5 +17,6 @@ matplotlib
 seaborn
 plotly
 scipy
+boto3
 optuna
 -e .

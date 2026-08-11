@@ -134,9 +134,12 @@ class DataValidation:
                 report = Report(metrics=[DataDriftPreset()])
                 report.run(reference_data=reference_df, current_data=current_df)
                 
-                # Intentar guardar el reporte HTML
+                # Intentar guardar el reporte HTML de forma compatible
                 try:
-                    report.save_html(self.data_validation_config.drift_report_page_file_path)
+                    if hasattr(report, "save_html") and callable(getattr(report, "save_html")):
+                        report.save_html(self.data_validation_config.drift_report_page_file_path)
+                    elif hasattr(report, "save") and callable(getattr(report, "save")):
+                        report.save(self.data_validation_config.drift_report_page_file_path)
                 except Exception as e:
                     logging.warning(f"No se pudo guardar el reporte HTML de Evidently: {e}")
 

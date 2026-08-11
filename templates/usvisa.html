@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Aprobación de Visa de EE. UU. | MLOps</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-glow: rgba(99, 102, 241, 0.35);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: rgba(148, 163, 184, 0.2);
+            --success-color: #10b981;
+            --danger-color: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #c7d2fe, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Card Container */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        /* Result Banner */
+        .result-banner {
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .result-banner.certified {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+        }
+
+        .result-banner.denied {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            color: #fda4af;
+        }
+
+        .result-banner.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .result-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        input, select {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        select option {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        /* Button */
+        .btn-submit {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px -5px var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Quick Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .btn-train {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-train:hover {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 2rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="badge">
+                <span class="badge-dot"></span>
+                MLOps Production Model (Amazon S3)
+            </div>
+            <h1>Sistema de Predicción de Visa US</h1>
+            <p>Ingrese la información del solicitante para predecir el estado de aprobación de la visa en tiempo real.</p>
+        </header>
+
+        <!-- Main Glass Card -->
+        <div class="glass-card">
+            
+            <!-- Result Banner (If Context Available) -->
+            {% if context %}
+                {% if context.error %}
+                    <div class="result-banner error">
+                        <div class="result-title">
+                            ❌ Error en la Predicción
+                        </div>
+                        <p style="margin-top: 0.4rem; font-size: 0.9rem;">{{ context.error }}</p>
+                    </div>
+                {% else %}
+                    <div class="result-banner {% if context.is_certified %}certified{% else %}denied{% endif %}">
+                        <div class="result-title">
+                            {% if context.is_certified %}
+                                🎉 {{ context.result }}
+                            {% else %}
+                                ❌ {{ context.result }}
+                            {% endif %}
+                        </div>
+                        <p style="margin-top: 0.4rem; font-size: 0.9rem; opacity: 0.9;">
+                            Predicción calculada mediante el modelo desplegado en producción en Amazon S3.
+                        </p>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Prediction Form -->
+            <form action="/" method="post">
+                <div class="form-grid">
+                    
+                    <!-- Continente -->
+                    <div class="form-group">
+                        <label for="continent">Continente de Origen</label>
+                        <select name="continent" id="continent" required>
+                            <option value="Asia" {% if context and context.inputs.continent == 'Asia' %}selected{% endif %}>Asia</option>
+                            <option value="Europe" {% if context and context.inputs.continent == 'Europe' %}selected{% endif %}>Europa</option>
+                            <option value="Africa" {% if context and context.inputs.continent == 'Africa' %}selected{% endif %}>África</option>
+                            <option value="North America" {% if context and context.inputs.continent == 'North America' %}selected{% endif %}>Norteamérica</option>
+                            <option value="South America" {% if context and context.inputs.continent == 'South America' %}selected{% endif %}>Sudamérica</option>
+                            <option value="Oceania" {% if context and context.inputs.continent == 'Oceania' %}selected{% endif %}>Oceanía</option>
+                        </select>
+                    </div>
+
+                    <!-- Nivel Educativo -->
+                    <div class="form-group">
+                        <label for="education_of_employee">Nivel de Educación</label>
+                        <select name="education_of_employee" id="education_of_employee" required>
+                            <option value="Master's" {% if context and context.inputs.education_of_employee == "Master's" %}selected{% endif %}>Maestría (Master's)</option>
+                            <option value="Bachelor's" {% if context and context.inputs.education_of_employee == "Bachelor's" %}selected{% endif %}>Licenciatura (Bachelor's)</option>
+                            <option value="High School" {% if context and context.inputs.education_of_employee == 'High School' %}selected{% endif %}>Secundaria (High School)</option>
+                            <option value="Doctorate" {% if context and context.inputs.education_of_employee == 'Doctorate' %}selected{% endif %}>Doctorado (Doctorate)</option>
+                        </select>
+                    </div>
+
+                    <!-- Experiencia Laboral -->
+                    <div class="form-group">
+                        <label for="has_job_experience">¿Tiene Experiencia Laboral?</label>
+                        <select name="has_job_experience" id="has_job_experience" required>
+                            <option value="Y" {% if context and context.inputs.has_job_experience == 'Y' %}selected{% endif %}>Sí (Y)</option>
+                            <option value="N" {% if context and context.inputs.has_job_experience == 'N' %}selected{% endif %}>No (N)</option>
+                        </select>
+                    </div>
+
+                    <!-- Entrenamiento Laboral -->
+                    <div class="form-group">
+                        <label for="requires_job_training">¿Requiere Capacitación Laboral?</label>
+                        <select name="requires_job_training" id="requires_job_training" required>
+                            <option value="N" {% if context and context.inputs.requires_job_training == 'N' %}selected{% endif %}>No (N)</option>
+                            <option value="Y" {% if context and context.inputs.requires_job_training == 'Y' %}selected{% endif %}>Sí (Y)</option>
+                        </select>
+                    </div>
+
+                    <!-- Número de Empleados -->
+                    <div class="form-group">
+                        <label for="no_of_employees">Número de Empleados en la Empresa</label>
+                        <input type="number" name="no_of_employees" id="no_of_employees" placeholder="Ej. 150" value="{% if context %}{{ context.inputs.no_of_employees }}{% else %}150{% endif %}" required min="1">
+                    </div>
+
+                    <!-- Año de Fundación -->
+                    <div class="form-group">
+                        <label for="yr_of_estab">Año de Fundación de la Empresa</label>
+                        <input type="number" name="yr_of_estab" id="yr_of_estab" placeholder="Ej. 2005" value="{% if context %}{{ context.inputs.yr_of_estab }}{% else %}2005{% endif %}" required min="1800" max="2026">
+                    </div>
+
+                    <!-- Región de Empleo -->
+                    <div class="form-group">
+                        <label for="region_of_employment">Región de Empleo en EE. UU.</label>
+                        <select name="region_of_employment" id="region_of_employment" required>
+                            <option value="West" {% if context and context.inputs.region_of_employment == 'West' %}selected{% endif %}>Oeste (West)</option>
+                            <option value="Northeast" {% if context and context.inputs.region_of_employment == 'Northeast' %}selected{% endif %}>Noreste (Northeast)</option>
+                            <option value="South" {% if context and context.inputs.region_of_employment == 'South' %}selected{% endif %}>Sur (South)</option>
+                            <option value="Midwest" {% if context and context.inputs.region_of_employment == 'Midwest' %}selected{% endif %}>Medio Oeste (Midwest)</option>
+                            <option value="Island" {% if context and context.inputs.region_of_employment == 'Island' %}selected{% endif %}>Islas (Island)</option>
+                        </select>
+                    </div>
+
+                    <!-- Salario Prevaleciente -->
+                    <div class="form-group">
+                        <label for="prevailing_wage">Salario Prevaleciente ($)</label>
+                        <input type="number" step="0.01" name="prevailing_wage" id="prevailing_wage" placeholder="Ej. 85000" value="{% if context %}{{ context.inputs.prevailing_wage }}{% else %}85000{% endif %}" required min="0">
+                    </div>
+
+                    <!-- Unidad de Salario -->
+                    <div class="form-group">
+                        <label for="unit_of_wage">Unidad del Salario</label>
+                        <select name="unit_of_wage" id="unit_of_wage" required>
+                            <option value="Year" {% if context and context.inputs.unit_of_wage == 'Year' %}selected{% endif %}>Anual (Year)</option>
+                            <option value="Hour" {% if context and context.inputs.unit_of_wage == 'Hour' %}selected{% endif %}>Por Hora (Hour)</option>
+                            <option value="Week" {% if context and context.inputs.unit_of_wage == 'Week' %}selected{% endif %}>Semanal (Week)</option>
+                            <option value="Month" {% if context and context.inputs.unit_of_wage == 'Month' %}selected{% endif %}>Mensual (Month)</option>
+                        </select>
+                    </div>
+
+                    <!-- Posición a Tiempo Completo -->
+                    <div class="form-group">
+                        <label for="full_time_position">¿Es Posición a Tiempo Completo?</label>
+                        <select name="full_time_position" id="full_time_position" required>
+                            <option value="Y" {% if context and context.inputs.full_time_position == 'Y' %}selected{% endif %}>Sí (Y)</option>
+                            <option value="N" {% if context and context.inputs.full_time_position == 'N' %}selected{% endif %}>No (N)</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit">
+                        ✨ Predecir Estado de Visa
+                    </button>
+                </div>
+            </form>
+
+            <!-- Bottom Action Bar -->
+            <div class="action-bar">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">
+                    Modelo Servido desde AWS S3
+                </span>
+                <a href="/train" class="btn-train" onclick="return confirm('¿Deseas iniciar la re-evaluación del Training Pipeline?');">
+                    ⚙️ Re-Entrenar Pipeline (/train)
+                </a>
+            </div>
+
+        </div>
+
+        <footer>
+            US Visa Approval Prediction System &bull; MLOps Enterprise Architecture
+        </footer>
+    </div>
+
+</body>
+</html>
