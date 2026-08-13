@@ -2,6 +2,7 @@ pymongo
 PyYAML
 fastapi
 uvicorn
+jinja2
 python-multipart
 pandas
 numpy<2.0
