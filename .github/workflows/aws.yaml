@@ -64,6 +64,7 @@ jobs:
             REPO_NAME="${{ secrets.ECR_REPOSITORY_NAME }}"
             REPO_NAME="${REPO_NAME:-usvisa-app}"
             ECR_URI="${{ secrets.AWS_ECR_LOGIN_URI }}"
+            ECR_URI="${ECR_URI%%/*}"
             REGION="${{ secrets.AWS_REGION }}"
             REGION="${REGION:-us-east-2}"
             
