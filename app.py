@@ -34,7 +34,7 @@ async def index(request: Request):
     """
     Renderiza la interfaz gráfica interactiva del formulario de predicción de visa.
     """
-    return templates.TemplateResponse("usvisa.html", {"request": request, "context": None})
+    return templates.TemplateResponse(request=request, name="usvisa.html", context={"context": None})
 
 
 @app.get("/train")
@@ -107,7 +107,7 @@ async def predict_route(
             }
         }
 
-        return templates.TemplateResponse("usvisa.html", {"request": request, "context": context})
+        return templates.TemplateResponse(request=request, name="usvisa.html", context={"context": context})
 
     except Exception as e:
         logging.error(f"Error procesando la predicción en la web: {e}")
@@ -126,7 +126,7 @@ async def predict_route(
                 "full_time_position": full_time_position,
             }
         }
-        return templates.TemplateResponse("usvisa.html", {"request": request, "context": error_context})
+        return templates.TemplateResponse(request=request, name="usvisa.html", context={"context": error_context})
 
 
 if __name__ == "__main__":
