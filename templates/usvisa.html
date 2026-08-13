@@ -346,31 +346,31 @@
                     <!-- Número de Empleados -->
                     <div class="form-group">
                         <label for="no_of_employees">Número de Empleados en la Empresa</label>
-                        <input type="number" name="no_of_employees" id="no_of_employees" placeholder="Ej. 150" value="{% if context %}{{ context.inputs.no_of_employees }}{% else %}150{% endif %}" required min="1">
+                        <input type="number" name="no_of_employees" id="no_of_employees" placeholder="Ej. 150" value="{% if context and context.inputs %}{{ context.inputs.no_of_employees }}{% else %}150{% endif %}" required min="1">
                     </div>
 
                     <!-- Año de Fundación -->
                     <div class="form-group">
                         <label for="yr_of_estab">Año de Fundación de la Empresa</label>
-                        <input type="number" name="yr_of_estab" id="yr_of_estab" placeholder="Ej. 2005" value="{% if context %}{{ context.inputs.yr_of_estab }}{% else %}2005{% endif %}" required min="1800" max="2026">
+                        <input type="number" name="yr_of_estab" id="yr_of_estab" placeholder="Ej. 2005" value="{% if context and context.inputs %}{{ context.inputs.yr_of_estab }}{% else %}2005{% endif %}" required min="1800" max="2026">
                     </div>
 
                     <!-- Región de Empleo -->
                     <div class="form-group">
                         <label for="region_of_employment">Región de Empleo en EE. UU.</label>
                         <select name="region_of_employment" id="region_of_employment" required>
-                            <option value="West" {% if context and context.inputs.region_of_employment == 'West' %}selected{% endif %}>Oeste (West)</option>
-                            <option value="Northeast" {% if context and context.inputs.region_of_employment == 'Northeast' %}selected{% endif %}>Noreste (Northeast)</option>
-                            <option value="South" {% if context and context.inputs.region_of_employment == 'South' %}selected{% endif %}>Sur (South)</option>
-                            <option value="Midwest" {% if context and context.inputs.region_of_employment == 'Midwest' %}selected{% endif %}>Medio Oeste (Midwest)</option>
-                            <option value="Island" {% if context and context.inputs.region_of_employment == 'Island' %}selected{% endif %}>Islas (Island)</option>
+                            <option value="West" {% if context and context.inputs and context.inputs.region_of_employment == 'West' %}selected{% endif %}>Oeste (West)</option>
+                            <option value="Northeast" {% if context and context.inputs and context.inputs.region_of_employment == 'Northeast' %}selected{% endif %}>Noreste (Northeast)</option>
+                            <option value="South" {% if context and context.inputs and context.inputs.region_of_employment == 'South' %}selected{% endif %}>Sur (South)</option>
+                            <option value="Midwest" {% if context and context.inputs and context.inputs.region_of_employment == 'Midwest' %}selected{% endif %}>Medio Oeste (Midwest)</option>
+                            <option value="Island" {% if context and context.inputs and context.inputs.region_of_employment == 'Island' %}selected{% endif %}>Islas (Island)</option>
                         </select>
                     </div>
 
                     <!-- Salario Prevaleciente -->
                     <div class="form-group">
                         <label for="prevailing_wage">Salario Prevaleciente ($)</label>
-                        <input type="number" step="0.01" name="prevailing_wage" id="prevailing_wage" placeholder="Ej. 85000" value="{% if context %}{{ context.inputs.prevailing_wage }}{% else %}85000{% endif %}" required min="0">
+                        <input type="number" step="0.01" name="prevailing_wage" id="prevailing_wage" placeholder="Ej. 85000" value="{% if context and context.inputs %}{{ context.inputs.prevailing_wage }}{% else %}85000{% endif %}" required min="0">
                     </div>
 
                     <!-- Unidad de Salario -->

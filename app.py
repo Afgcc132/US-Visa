@@ -111,7 +111,21 @@ async def predict_route(
 
     except Exception as e:
         logging.error(f"Error procesando la predicción en la web: {e}")
-        error_context = {"error": str(e)}
+        error_context = {
+            "error": str(e),
+            "inputs": {
+                "continent": continent,
+                "education_of_employee": education_of_employee,
+                "has_job_experience": has_job_experience,
+                "requires_job_training": requires_job_training,
+                "no_of_employees": no_of_employees,
+                "yr_of_estab": yr_of_estab,
+                "region_of_employment": region_of_employment,
+                "prevailing_wage": prevailing_wage,
+                "unit_of_wage": unit_of_wage,
+                "full_time_position": full_time_position,
+            }
+        }
         return templates.TemplateResponse("usvisa.html", {"request": request, "context": error_context})
 
 
