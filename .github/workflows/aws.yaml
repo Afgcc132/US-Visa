@@ -73,6 +73,7 @@ jobs:
             export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
             
             sudo -E aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $ECR_URI
+            sudo docker system prune -af || true
             sudo docker pull $ECR_URI/$REPO_NAME:latest
             sudo docker stop usvisa-container || true
             sudo docker rm usvisa-container || true
