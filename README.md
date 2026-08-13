@@ -61,3 +61,6 @@ mongodb+srv://afgcc132_db_user:EBmg5X3VKtwEhB7c@cluster0.zv2f9bv.mongodb.net/?ap
     4. Store the trained model
     5. Return the trained model
 
+
+798644228622.dkr.ecr.us-east-2.amazonaws.com/usvisa-app
+
