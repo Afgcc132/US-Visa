@@ -61,6 +61,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
             REPO_NAME="${{ secrets.ECR_REPOSITORY_NAME }}"
             REPO_NAME="${REPO_NAME:-usvisa-app}"
             ECR_URI="${{ secrets.AWS_ECR_LOGIN_URI }}"
@@ -68,7 +69,10 @@ jobs:
             REGION="${{ secrets.AWS_REGION }}"
             REGION="${REGION:-us-east-2}"
             
-            sudo aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $ECR_URI
+            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+            
+            sudo -E aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $ECR_URI
             sudo docker pull $ECR_URI/$REPO_NAME:latest
             sudo docker stop usvisa-container || true
             sudo docker rm usvisa-container || true
