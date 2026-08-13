@@ -42,8 +42,9 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          REPO="${ECR_REPOSITORY:-usvisa-app}"
+          docker build -t $ECR_REGISTRY/$REPO:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$REPO:$IMAGE_TAG
 
   continuous-deployment:
     name: Despliegue Continuo a Instancia AWS EC2
@@ -60,13 +61,19 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_LOGIN_URI }}
-            sudo docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+            REPO_NAME="${{ secrets.ECR_REPOSITORY_NAME }}"
+            REPO_NAME="${REPO_NAME:-usvisa-app}"
+            ECR_URI="${{ secrets.AWS_ECR_LOGIN_URI }}"
+            REGION="${{ secrets.AWS_REGION }}"
+            REGION="${REGION:-us-east-2}"
+            
+            sudo aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $ECR_URI
+            sudo docker pull $ECR_URI/$REPO_NAME:latest
             sudo docker stop usvisa-container || true
             sudo docker rm usvisa-container || true
-            sudo docker run -d -p 8080:8080 --name usvisa-container \
+            sudo docker run -d -p 8080:8080 --restart unless-stopped --name usvisa-container \
               -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
               -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-              -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-              ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+              -e AWS_REGION="$REGION" \
+              $ECR_URI/$REPO_NAME:latest
             sudo docker image prune -f
